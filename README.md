@@ -1,1 +1,1 @@
-# FP
+# Data and scripts for a final masters project on factor investing 
