@@ -27,20 +27,21 @@ end
 
 %Need to predefine the array of the same size as the numbers one
 
-replace='previous'; %What to replace the data with currently with the previous value
+replace='previous';
+
+%We replace the NaNs with the previous values of the set
 
 num2 = randn(size(num,1),size(num,2),size(num,3)) 
 
 for i = [1:1:sheet]
-    num2(date:end,:,i) = fillmissing(num(date:end,:,i), replace)
+    num2(date:end,:,i) = fillmissing(num(date:end,:,i), replace);
 end 
 
-%Next we make a quick test of the number of outliears in the programme
-
+%Next we want to indeify the number of outliers 
 method = 'median';
 
 for i = [1:1:sheet]
-    num2(date:end,:,i) = isoutlier(num(date:end,:,i),method)
+    num2(date:end,:,i) = isoutlier(num(date:end,:,i),method);
 end 
 
 % Gives the number of problematic cells for each of the sheet seperately
