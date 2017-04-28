@@ -1,6 +1,6 @@
 %Simple way we can get the data from Excel back into Matlab
 
-filename= "Data.xlsx";
+filename= "test.xlsx";
 
 [status,sheets] = xlsfinfo(filename) %Gets the data for the sheets and then passes them further
 
@@ -8,16 +8,10 @@ filename= "Data.xlsx";
 
 date = false; % Can only take the true or false
 
-sto = cell(size(sheets,2),1); % Predefine the data-box
-
 %Gets all the numberical data from the sheets
-for i = [1:1:size(sheets,2)]
-    num(:,:) = xlsread(filename,char(sheets(i))); % range as the optional argument afterwards
-    sto(i,1) = {num};
-    clear num
+for i = [1:1:size(sheets)]
+    num(:,:,i) = xlsread(filename,sheets(i)); % range as the optional argument afterwards
 end 
-
-sto' %Transposing the data
 
 % % We will want to do the date conversion, only if the data is in the data
 % 
