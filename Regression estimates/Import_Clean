@@ -1,0 +1,78 @@
+%% Import
+
+filename= 'Import.xlsx';
+
+[status,sheets] = xlsfinfo(filename); %Gets the data for the sheets and then passes them further
+
+Data_Array = cell(1,size(sheets,2));
+Date_Array = cell(1,size(sheets,2));
+
+%Gets all the numberical data from the sheets
+for i = 2:1:size(sheets,2)
+    [num txt] = xlsread(filename,i);% range as the optional argument afterwards
+    Import = num;
+    Date = txt(:,1);
+    
+    clear num txt
+    
+    if sum(isnan(Import(:,2)))/size(Import,1) < 0.3 %Checks if sufficient price data is available
+        %% Start Cleaning
+        Import(:,[14:16,19,23,25])=[];
+        
+        %% Clearing for Announcement Day
+        Event_Bin = (isnan(Import(:,13))==0);
+        Price_Bin = isnan(Import(:,1));
+
+        Combined_Bin = ((Event_Bin==1) & (Price_Bin==1));
+        Combined_Bin =[zeros(1);Combined_Bin];
+        Combined_Bin(end,:)=[];
+
+        Combined_Bin = Combined_Bin(:,1) + Event_Bin(:,1);
+        Import(:,13) = Combined_Bin;
+
+        clear Combined_Bin Event_Bin Price_Bin
+        
+        %% Clear for Announcement related values
+        Import(:,2) = Rep_NaN(Import,2);
+        Import(:,3) = Rep_NaN(Import,3);
+        Import(:,4) = Rep_NaN(Import,4);
+        Import(:,5) = Rep_NaN(Import,5);
+        Import(:,6) = Rep_NaN(Import,6);
+        Import(:,11) = Rep_NaN(Import,11);
+        Import(:,14) = Rep_NaN(Import,14);
+        Import(:,15) = Rep_NaN(Import,15);
+        Import(:,16) = Rep_NaN(Import,16);
+        Import(:,17) = Rep_NaN(Import,17);
+        Import(:,18) = Rep_NaN(Import,18);
+        Import(:,19) = Rep_NaN(Import,19);
+
+        Import(:,12) = free_float(Import,12);
+        
+        %% Clear all Dates with Prices NaN
+        Date = Date(~any(isnan(Import(:,1)),2),:);
+        Import = Import(~any(isnan(Import(:,1)),2),:);
+        
+        %% Create Daily Returns
+        Import = [Import(:,1) zeros(size(Import,1),5) Import(:,2:end)];
+
+        Import(2:end,2) = log(Import(2:end,1)./Import(1:end-1,1));
+        Import(5:end,3) = log(Import(5:end,1)./Import(1:end-4,1));
+        Import(21:end,4) = log(Import(21:end,1)./Import(1:end-20,1));
+        Import(63:end,5) = log(Import(63:end,1)./Import(1:end-62,1));
+        Import(126:end,6) = log(Import(126:end,1)./Import(1:end-125,1));
+        
+        %% Delete first 125 days to have full data set
+        Import(1:125,:)=[];
+        Date(1:125,:)=[];
+        
+        %% Upload in Array
+        Data_Array{1,i-1} = Import;
+        Date_Array{1,i-1} = Date;
+        
+        clear Date Import
+    else
+        sheets(:,i)=[];
+    end
+end
+
+clear i status filename
