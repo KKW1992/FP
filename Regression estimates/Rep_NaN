@@ -1,0 +1,15 @@
+function [Output] = Rep_NaN(Input,Col)
+
+bin = isnan(Input(:,Col));
+
+Saver = Input(:,Col);
+
+for x=1:size(Input,1)
+    if bin(x)==1
+        Saver(x,1)=Saver(x-1,1);       
+    end
+end
+
+Output = Saver;
+
+end
